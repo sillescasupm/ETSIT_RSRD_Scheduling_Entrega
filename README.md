@@ -20,7 +20,16 @@ Para ejecutar el programa, simplemente ejecuta el script `main.py`. Este script 
 
 El programa requiere Python 3 para ejecutarse. No tiene dependencias externas adicionales.
 
+## Autores
+
+Este proyecto fue desarrollado en parte por los profesores de la asignatura RSRD de la Universidad Politécina de madrid como parte de la asigntura. Posteriormente editado y cumplimentado por Sergio Illescas.
+
+## Licencia
+
+Uso libre con fines académicos. Prohibido su uso fuera del entorno de la UPM.
+
 ## Ejemplo de Uso
 
 ```python
 python main.py
+
