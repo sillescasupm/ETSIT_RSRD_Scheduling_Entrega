@@ -83,12 +83,34 @@ class Scenario:
         for zone in self.zones:
             zone_name = zone.name
             fair_bandwidth = (zone.users / total_users) * total_bandwidth
+            if zone.users == 0:
+                r_final.append([zone_name, 0])
+                continue
             r_user = fair_bandwidth * zone.bps_per_hz / zone.users
             r_final.append([zone_name, r_user])
         self.b_remain_MHz = 0.0
         return r_final
     
+    def proportionalFair_MinRate(self):
+        r_final = []
+        total_users = sum(zone.users for zone in self.zones)
+        total_bandwidth = self.b_remain_MHz
 
+        for zone in self.zones:
+            zone_name = zone.name
+            b_total, r_user = self.computeZoneMinSla(zone)
+            self.b_remain_MHz -= b_total
+            r_final.append([zone_name, r_user])
+            zone.r_peak_mbps -= zone.r_sla_mbps
+            fair_bandwidth = (zone.users / total_users) * total_bandwidth
+            sla_bandwidth = zone.users * zone.r_sla_mbps / zone.bps_per_hz
+
+            if sla_bandwidth > fair_bandwidth:
+                zone.users = 0
+        r_final_maxCI = self.proportionalFair()
+
+        result = self.suma_valores(r_final, r_final_maxCI)
+        return result
 
 
     
@@ -129,6 +151,16 @@ def main():
     for result in r_final_proportional:
         print(f"Zone {result[0]}: {result[1]:.2f} Mbps/user")
     print(f"Remaining MHz after proportionalFair: {scenario.b_remain_MHz} MHz")
+
+    # Reset scenario for the next method
+    scenario.b_remain_MHz = scenario.b_total_MHz
+
+    # Test proportionalFair
+    r_final_proportional_MinRate = scenario.proportionalFair_MinRate()
+    print("\nResults for proportionalFair_MinRate method:")
+    for result in r_final_proportional_MinRate:
+        print(f"Zone {result[0]}: {result[1]:.2f} Mbps/user")
+    print(f"Remaining MHz after proportionalFair_MinRate: {scenario.b_remain_MHz} MHz")
 
 if __name__ == "__main__":
     main()
